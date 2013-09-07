@@ -9,4 +9,4 @@ Current plans are to keep management a manual, hands-on approach to ensure that 
 
 ---
 
-mediator is being developed with a headless Linux server in mind and is written in mostly Python.
+*mediator is being developed with a headless Linux server in mind and is written in mostly Python.*
