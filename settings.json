@@ -1,0 +1,9 @@
+{
+	"torrent-library": "/mnt/media/transmission/library",
+	"movie-dir": "/mnt/media/movies",
+	"tv-dir": "/mnt/media/broadcast",
+	"todo-log": "./logs/todo.log",
+	"history-log": "./logs/history.log",
+	"delta-log": "./logs/delta.log",
+	"extensions": "avi,mkv,div,mp4,ts,iso,img,m2ts,rar"
+}
