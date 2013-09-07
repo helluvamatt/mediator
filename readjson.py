@@ -1,6 +1,6 @@
 import json
 
-def readJson(readFile):
+def read_json(readFile):
 
 	from pprint import pprint
 

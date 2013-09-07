@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 import os
-from readjson import readJson
+from readjson import read_json
 
 class Log:
 
 	def __init__(self, logFile):
 
 		self.logFile = logFile
-		self.jsonDb = readJson(logFile)
+		self.jsonDb = read_json(logFile)
 		self.nTodo, self.nHistory, self.nDelta = -1, -1, -1
 
 	def scanLogs(self):
