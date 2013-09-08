@@ -1,61 +1,53 @@
-#!/usr/bin/env python
-
-import os
 from readjson import read_json
 
 class Log:
 
-	def __init__(self, logFile):
+	def __init__(self, logfile):
 
-		self.logFile = logFile
-		self.jsonDb = read_json(logFile)
-		self.nTodo, self.nHistory, self.nDelta = -1, -1, -1
+		self.logfile = logfile
+		self.json_file = read_json(logfile)
+		self.todo, self.history, self.delta = -1, -1, -1
 
-	def scanLogs(self):
+	def scan_logs(self):
 
-		with open(self.jsonDb["todo-log"]) as todoLog:
-			for self.nTodo, n in enumerate(todoLog):
+		with open(self.json_file["todo-log"]) as todo_items:
+			for self.todo, n in enumerate(todo_items):
 				pass
 
-		with open(self.jsonDb["history-log"]) as historyLog:
-			for self.nHistory, n in enumerate(historyLog):
+		with open(self.json_file["history-log"]) as history_items:
+			for self.history, n in enumerate(history_items):
 				pass
 
-		with open(self.jsonDb["delta-log"]) as deltaLog:
-			for self.nDelta, n in enumerate(deltaLog):
+		with open(self.json_file["delta-log"]) as delta_items:
+			for self.delta, n in enumerate(delta_items):
 				pass
-		return self.nTodo + 1, self.nHistory + 1, self.nDelta + 1
+		return self.todo + 1, self.history + 1, self.delta + 1
 
-	def printLogs(self, all=True, todo=False, history=False, delta=False):
+	def print_logs(self, all=True, todo=False, history=False, delta=False):
 		"""Default behavior is to print all logs;
 		raise flag to print one log explicitly"""
 
-		self.scanLogs()
+		self.scan_logs()
 
 		# lower all flag if and only if one specific log flag is raised
 		if todo ^ history ^ delta:
 			all=False
 
 		# print one or all
-		if (self.nTodo > -1) and (todo or all):
-			print("todo.log(%s):" % (self.nTodo + 1))
-			with open(self.jsonDb["todo-log"]) as todoLog:
-				for tName in todoLog:
-					print tName.strip('\n')
+		if (self.todo > -1) and (todo or all):
+			print("todo.log(%s):" % (self.todo + 1))
+			with open(self.json_file["todo-log"]) as todo_items:
+				for torrent in todo_items:
+					print torrent.strip('\n')
 
-		if (self.nHistory > -1) and (history or all):
-			print("history.log(%s):" % (self.nHistory + 1))
-			with open(self.jsonDb["history-log"]) as historyLog:
-				for tName in historyLog:
-					print tName.strip('\n')
+		if (self.history > -1) and (history or all):
+			print("------\nhistory.log(%s):" % (self.history + 1))
+			with open(self.json_file["history-log"]) as history_items:
+				for torrent in history_items:
+					print torrent.strip('\n')
 
-		if (self.nDelta > -1) and (delta or all):
-			print("delta.log(%s):" % (self.nDelta + 1))
-			with open(self.jsonDb["delta-log"]) as deltaLog:
-				for tName in deltaLog:
-					print tName.strip('\n')
-
-mylog = Log("settings.json")
-
-todo, history, delta = mylog.scanLogs()
-mylog.printLogs()
+		if (self.delta > -1) and (delta or all):
+			print("-------\ndelta.log(%s):" % (self.delta + 1))
+			with open(self.json_file["delta-log"]) as delta_items:
+				for torrent in delta_items:
+					print torrent.strip('\n')
