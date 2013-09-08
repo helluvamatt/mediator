@@ -1,11 +1,11 @@
 import json
 
-def read_json(readFile):
+def read_json(read_file):
 
-	from pprint import pprint
+    from pprint import pprint
 
-	jsonData = open(readFile)
-	data = json.load(jsonData)
-	jsonData.close()
+    json_data = open(read_file)
+    data = json.load(json_data)
+    json_data.close()
 
-	return data
+    return data
