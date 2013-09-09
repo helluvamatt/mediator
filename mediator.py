@@ -12,10 +12,10 @@ json_file = read_json(settings)
 
 def verify_source_data(torrent):
     
-    print("name: %s" % torrent.name)
     os.chdir(json_file["torrent-library"])
     for file in os.listdir("%s" % torrent.name):
-        print(file)
+        if any(file.endswith(x) for x in json_file["extensions"]):
+            print(file)
 
 def main():
 
@@ -36,7 +36,6 @@ def main():
             t.set_info(**collect_metadata(t))
 
             verify_source_data(t)
-
 
 if __name__ == '__main__':
     main()
