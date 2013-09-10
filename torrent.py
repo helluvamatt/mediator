@@ -1,30 +1,29 @@
 class Torrent:
 
-	MOVIE = 1
-	EPISODE = 2
-	SEASON = 3
-	_type = -1
+    MOVIE = 1
+    EPISODE = 2
+    SEASON = 3
+    _type = -1
 
-	def __init__(self, name, media_type):
+    def __init__(self, name, media_type):
 
-		self.name = name
-		Torrent._type = media_type
-		# media_info = []
+        self.name = name
+        Torrent._type = media_type
 
-	def set_info(self, **kwargs):
+    def set_library_path(self, file):
 
-		if self._type == self.MOVIE:
-			title = kwargs['title']
-			year = kwargs['year']
+        if file:
+            self.library_path = file
+            print("lib path set to: %s" % self.library_path)
 
-		elif self._type == self.EPISODE:
-			series = kwargs['series']
-			seasons = kwargs['season']
-			episode = kwargs['episode']
+    def set_metadata(self, **kwargs):
 
-		elif self._type == self.SEASON:
-			series = kwargs['series']
-			seasons = kwargs['season']
+        self.metadata = kwargs.copy()
+
+    def set_filename(self, name, ext):
+
+        self.filename = name
+        self.extension = ext
 
 def is_media_type(torrent):
     
@@ -78,6 +77,3 @@ def collect_metadata(torrent):
                 'series': series,
                 'season': season
                }
-
-def get_files(torrent):
-    pass
