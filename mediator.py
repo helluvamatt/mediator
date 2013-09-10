@@ -2,92 +2,55 @@
 
 import os
 import logging
-from readjson import read_json
 from queue import TorrentQueues
-from format import FormatMedia
-from torrent import Torrent, is_media_type, collect_metadata
-from sh import sh
+from torrent import Torrent, MediaBuilder
 
-settings = "settings.json"
-json_file = read_json(settings)
+settings_file = "settings.json"
 
-def verify_source_data(torrent):
+def is_media_type():
+        
+    media_type = raw_input("movie, episode, season, skip, or ignore? [m/e/s/k/i]")
     
-    os.chdir(json_file["torrent-library"])
-    for file in os.listdir("%s" % torrent.name):
-        if any(file.endswith(x) for x in json_file["extensions"]):
-            source = raw_input("%s? [y/n]" % file)
-            if source == 'y' or source == '':
-                return file
+    if media_type == 'm':
+        return Torrent.MOVIE
 
-def get_extension(torrent):
+    elif media_type == 'e':
+        return Torrent.EPISODE
 
-    return os.path.splitext(torrent.library_path)[1]
+    elif media_type == 's':
+        return Torrent.SEASON
 
-def preexisting(torrent):
+    elif media_type == 'k':
+        return
 
-    if torrent._type == Torrent.MOVIE:
-        print("checking for movie...")
+    elif media_type == 'i':
+        return
 
-        if os.path.exists("%s/%s%s" % (
-            json_file['movie-dir'],
-            torrent.filename,
-            torrent.extension)
-        ) or os.path.exists("%s/%s" % (
-            json_file['movie-dir'],
-            torrent.filename)
-        ):
-            print("%s/%s%s exists" % (
-                json_file['movie-dir'],
-                torrent.filename,
-                torrent.extension)
-            )
-            return True
-        else:
-            print("%s/%s%s doesn't exist" % (
-                json_file['movie-dir'],
-                torrent.filename,
-                torrent.extension)
-            ) 
-            return False
-
-    elif torrent._type == Torrent.EPISODE:
-        print("checking for episode..")
-
-
-
-    elif torrent._type == Torrent.SEASON:
-        print("checking for season...")
-
-def insert_to_media(torrent):
-    # os.makedirs("%s/%s" % (json_file['movie-dir'], torrent.filename))
-    # os.chdir(json_file["torrent-library"])
-    os.chdir(torrent.name)
-    os.link(torrent.library_path, "%s/%s%s" % (json_file['movie-dir'], torrent.filename, torrent.extension))
+    else:
+        print("Invalid input. Try again.")
+        is_media_type(torrent)
 
 def main():
 
     # first, update the queues and store values
-    tq = TorrentQueues(settings)
+    tq = TorrentQueues(settings_file)
 
     # now, iterate on each torrent in queue
     for i, torrent in enumerate(tq.get_queue(todo=True)):
         torrent = torrent.strip()
         print("[%s/%s] %s:" % (i, tq.todo_size, torrent))
         
-        media_type = is_media_type(torrent)
+        media_type = is_media_type()
 
         if media_type:
-            t = Torrent(torrent, media_type)
-            f = FormatMedia()
+            mb = MediaBuilder(torrent, media_type)
 
-            t.set_metadata(**collect_metadata(t))
-            t.set_library_path(verify_source_data(t))
-            t.set_filename(f.format(t), get_extension(t))
+            mb.collect_metadata()
+            mb.verify_source_data()
+            mb.format_filename()
 
-            if not preexisting(t):
-                insert_to_media(t)
-
+            if not mb.preexisting():
+                mb.build_media()
 
 if __name__ == '__main__':
     main()
