@@ -11,14 +11,14 @@ class Torrent:
     SEASON = 3
     _type = -1
 
-    def __init__(self, name, media_type, library_path, **metadata, filename, extension):
+    def __init__(self, name, media_type, library_path, filename, extension, **metadata):
 
         self.name = name
         self.media_type = media_type
         self.library_path = library_path
-        self.metadata = metadata.copy()
         self.filename = filename
         self.extension = extension
+        self.metadata = metadata.copy()
 
 class MediaBuilder:
 
@@ -70,8 +70,6 @@ class MediaBuilder:
     def preexisting(self):
 
         if self.media_type == Torrent.MOVIE:
-            print("checking for movie...")
-
             if os.path.exists("%s/%s%s" % (
                 settings['movie-dir'],
                 self.filename,
@@ -80,27 +78,29 @@ class MediaBuilder:
                 settings['movie-dir'],
                 self.filename)
             ):
-                print("%s/%s%s exists" % (
-                    settings['movie-dir'],
-                    self.filename,
-                    self.extension)
-                )
+                print("movie already exists")
                 return True
             else:
-                print("%s/%s%s doesn't exist" % (
-                    settings['movie-dir'],
-                    self.filename,
-                    self.extension)
-                ) 
+                print("movie is new") 
                 return False
 
         elif self.media_type == Torrent.EPISODE:
-            print("checking for episode..")
-
+            if os.path.exists("%s/%s/Season %s/%s%s" % (
+                settings['tv-dir'],
+                self.metadata['series'],
+                self.metadata['season'],
+                self.filename,
+                self.extension)
+            ):
+                print("episode already exists")
+                return True
+            else:
+                print("episode is new")
+                return False
 
 
         elif self.media_type == Torrent.SEASON:
-            print("checking for season...")
+            print("seasons not supported yet! perhaps you should get on that?")
 
     def format_filename(self):
 
@@ -120,6 +120,20 @@ class MediaBuilder:
     def build_media(self):
 
         os.chdir(self.name)
-        os.link(self.source_file, "%s/%s%s" % (settings['movie-dir'], self.filename, self.extension))
 
-        return Torrent(self.name, self.media_type, self.source_file, **self.metadata, self.filename, self.extension)
+        if self.media_type == Torrent.MOVIE:
+            os.link(self.source_file, "%s/%s%s" % (settings['movie-dir'], self.filename, self.extension)) 
+               
+        elif self.media_type == Torrent.EPISODE:
+            os.makedirs("%s/%s/Season %s" % (
+                settings['tv-dir'],
+                self.metadata['series'],
+                self.metadata['season']))
+            os.link(self.source_file, "%s/%s/Season %s/%s%s" % (
+                settings['tv-dir'],
+                self.metadata['series'],
+                self.metadata['season'],
+                self.filename,
+                self.extension))
+
+        return Torrent(self.name, self.media_type, self.source_file, self.filename, self.extension, **self.metadata)
