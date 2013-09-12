@@ -43,7 +43,7 @@ def main():
         media_type = is_media_type()
 
         if media_type:
-            mb = MediaBuilder(torrent, media_type)
+            mb = MediaBuilder(torrent, media_type, settings_file)
 
             mb.collect_metadata()
             mb.verify_source_data()
