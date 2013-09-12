@@ -1,9 +1,6 @@
 import os
 from readjson import read_json
 
-settings_file = "settings.json"
-settings = read_json(settings_file)
-
 class Torrent:
 
     MOVIE = 1
@@ -22,10 +19,11 @@ class Torrent:
 
 class MediaBuilder:
 
-    def __init__(self, name, media_type):
+    def __init__(self, name, media_type, settings_file):
 
         self.name = name
         self.media_type = media_type
+        self.settings = read_json(settings_file)
 
     def collect_metadata(self):
 
@@ -57,10 +55,10 @@ class MediaBuilder:
 
     def verify_source_data(self):
     
-        os.chdir(settings["torrent-library"])
+        os.chdir(self.settings["torrent-library"])
 
         for current_file in os.listdir("%s" % self.name):
-            if any(current_file.endswith(x) for x in settings["extensions"]):
+            if any(current_file.endswith(x) for x in self.settings["extensions"]):
                 source = raw_input("%s? [y/n]" % current_file)
                 if source == 'y' or source == '':
                     self.source_file = current_file
@@ -71,11 +69,11 @@ class MediaBuilder:
 
         if self.media_type == Torrent.MOVIE:
             if os.path.exists("%s/%s%s" % (
-                settings['movie-dir'],
+                self.settings['movie-dir'],
                 self.filename,
                 self.extension)
             ) or os.path.exists("%s/%s" % (
-                settings['movie-dir'],
+                self.settings['movie-dir'],
                 self.filename)
             ):
                 print("movie already exists")
@@ -86,7 +84,7 @@ class MediaBuilder:
 
         elif self.media_type == Torrent.EPISODE:
             if os.path.exists("%s/%s/Season %s/%s%s" % (
-                settings['tv-dir'],
+                self.settings['tv-dir'],
                 self.metadata['series'],
                 self.metadata['season'],
                 self.filename,
@@ -122,15 +120,15 @@ class MediaBuilder:
         os.chdir(self.name)
 
         if self.media_type == Torrent.MOVIE:
-            os.link(self.source_file, "%s/%s%s" % (settings['movie-dir'], self.filename, self.extension)) 
+            os.link(self.source_file, "%s/%s%s" % (self.settings['movie-dir'], self.filename, self.extension)) 
                
         elif self.media_type == Torrent.EPISODE:
             os.makedirs("%s/%s/Season %s" % (
-                settings['tv-dir'],
+                self.settings['tv-dir'],
                 self.metadata['series'],
                 self.metadata['season']))
             os.link(self.source_file, "%s/%s/Season %s/%s%s" % (
-                settings['tv-dir'],
+                self.settings['tv-dir'],
                 self.metadata['series'],
                 self.metadata['season'],
                 self.filename,
