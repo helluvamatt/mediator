@@ -4,6 +4,7 @@ import os
 import logging
 from queue import TorrentQueues
 from torrent import Torrent, MediaBuilder
+import pickle
 
 settings_file = "settings.json"
 
@@ -34,6 +35,7 @@ def main():
 
     # first, update the queues and store values
     tq = TorrentQueues(settings_file)
+    pickledb = open("history.pkl", "wb")
 
     # now, iterate on each torrent in queue
     for i, torrent in enumerate(tq.get_queue(todo=True)):
@@ -50,7 +52,8 @@ def main():
             mb.format_filename()
 
             if not mb.preexisting():
-                mb.build_media()
+                tor = mb.build_media()
+                pickle.dump(tor, pickledb)
 
 if __name__ == '__main__':
     main()
