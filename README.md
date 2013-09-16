@@ -24,8 +24,8 @@ So for now, mediator will retrieve what it *thinks* to be correct and will prese
 
 For clarification, the only metadata that mediator should care about is (and should be of the following forms):
 
-* Movies: Title_(Year)
-* TV Episodes: Name_of_Series.S01E05_-_Name_of_episode*
+* Movies: Title_(Year).extension
+* TV Episodes: Name_of_Series.S01E05_-_Name_of_episode*.extension
 
 <sup>*S = Season, E = Episode</sup>
 
