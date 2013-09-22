@@ -5,31 +5,44 @@ import logging
 from queue import TorrentQueues
 from torrent import Torrent, MediaBuilder
 import pickle
+import string
 
 settings_file = "settings.json"
 
-def is_media_type():
-        
-    media_type = raw_input("movie, episode, season, skip, or ignore? [m/e/s/k/i]")
-    
-    if media_type == 'm':
-        return Torrent.MOVIE
+def dynamic_options(media_type):
 
-    elif media_type == 'e':
-        return Torrent.EPISODE
+    opt_list = []
 
-    elif media_type == 's':
-        return Torrent.SEASON
-
-    elif media_type == 'k':
-        return
-
-    elif media_type == 'i':
-        return
-
+    if media_type == 1:
+        opt_list.append("M")
+        opt_list.append("e")
+        opt_list.append("s")
+    elif media_type == 2:
+        opt_list.append("E")
+        opt_list.append("m")
+        opt_list.append("s")
+    elif media_type == 3:
+        opt_list.append("S")
+        opt_list.append("m")
+        opt_list.append("e")
     else:
-        print("Invalid input. Try again.")
-        is_media_type(torrent)
+        opt_list.append("m")
+        opt_list.append("e")
+        opt_list.append("s")
+
+    opt_list.append("k")
+    opt_list.append("i")
+
+    opt_string = "["
+
+    for i, opt in enumerate(opt_list):
+        opt_string = opt_string + "%s" % opt
+        if i < len(opt_list) - 1:
+            opt_string = opt_string + "/"
+
+    opt_string = opt_string + "]"
+
+    return opt_string
 
 def main():
 
@@ -40,20 +53,31 @@ def main():
     # now, iterate on each torrent in queue
     for i, torrent in enumerate(tq.get_queue(todo=True)):
         torrent = torrent.strip()
-        print("[%s/%s] %s:" % (i, tq.todo_size, torrent))
+        mb = MediaBuilder(torrent, settings_file)
+
+        while True:
+            operate = raw_input("[%s/%s] %s %s:" % (i + 1,
+                                                    tq.todo_size + 1,
+                                                    torrent,
+                                                    dynamic_options(mb.get_suggested_metadata())
+                                                   )).lower()
+            if len(operate) <= 1:
+                if operate in string.letters and operate in ['m','e','s','k','i','']:
+                    if operate == '':
+                        mb.build_media()
+                    elif operate == 'm':
+                        mb.build_media(media_type=Torrent.MOVIE)
+                    elif operate == 'e':
+                        mb.build_media(media_type=Torrent.EPISODE)
+                    elif operate == 's':
+                        mb.build_media(media_type=Torrent.SEASON)    
+                    break
+                print("Invalid option. Enter either a single letter or return.")
+            else:
+                print("Invalid option. Enter either a single letter or return.")
         
-        media_type = is_media_type()
-
-        if media_type:
-            mb = MediaBuilder(torrent, media_type, settings_file)
-
-            mb.collect_metadata()
-            mb.verify_source_data()
-            mb.format_filename()
-
-            if not mb.preexisting():
-                tor = mb.build_media()
-                pickle.dump(tor, pickledb)
+        #     tor = mb.build_media()
+        #     pickle.dump(tor, pickledb)
 
 if __name__ == '__main__':
     main()
