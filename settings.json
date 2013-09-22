@@ -5,5 +5,10 @@
 	"todo-log": "./logs/todo.log",
 	"history-log": "./logs/history.log",
 	"delta-log": "./logs/delta.log",
-	"extensions": ["avi","mkv","div","mp4","ts","iso","img","m2ts","rar"]
+	"extensions": ["avi","mkv","div","mp4","ts","iso","img","m2ts","rar"],
+	"filename_patterns": [
+                    "^(?P<seriesname>.*).[Ss](?P<seasonnumber>\\d{2})[Ee](?P<episodenumber>\\d{2})(.*)",
+                    "^(?P<seriesname>.*).[Ss](?P<seasonnumber>\\d{2})(?![Ee]\\d{2})(.*)",
+                    "^(?P<title>.*).(?P<year>\\d{4})(?![\\w])"
+                    ]
 }
