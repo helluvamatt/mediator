@@ -2,6 +2,7 @@ import os
 from readjson import read_json
 import warnings
 import re
+import tvdb_api
 
 class Torrent:
 
@@ -32,8 +33,13 @@ class MediaBuilder:
     def collect_metadata(self, media_type=None):
 
         if self.media_type == Torrent.MOVIE:
-                title = raw_input("Title [%s]: " % self.metadata['title'])
-                year = raw_input("Year [%s]:" % self.metadata['year'])
+            title = raw_input("Title [%s]: " % self.metadata['title'])
+            year = raw_input("Year [%s]:" % self.metadata['year'])
+
+            if not title == '':
+                self.metadata['title'] = title
+            if not year == '':
+                self.metadata['year'] = year
 
         elif media_type == Torrent.MOVIE:
             title = raw_input("Title: ")
@@ -45,9 +51,26 @@ class MediaBuilder:
                             }
 
         elif self.media_type == Torrent.EPISODE:
-                series = raw_input("Series [%s]: " % self.metadata['series'])
-                season = raw_input("Season [%s]: " % self.metadata['season'])
-                episode = raw_input("Episode [%s]: " % self.metadata['episode'])
+            series = raw_input("Series [%s]: " % self.metadata['series'])
+            season = raw_input("Season [%s]: " % self.metadata['season'])
+            episode = raw_input("Episode [%s]: " % self.metadata['episode'])
+
+            if not series == '':
+                self.metadata['series'] = series
+            if not season == '':
+                self.metadata['season'] = season
+            if not episode == '':
+                self.metadata['episode'] = episode
+
+            print("time to query tvdb...")
+            t = tvdb_api.Tvdb()
+            e = t[self.metadata['series']][self.metadata['season']][self.metadata['episode']]
+            episodename = raw_input("Episode Name [%s]: " % e['episodename'])
+
+            if episodename == '':
+                self.metadata['episodename'] = e['episodename']
+            else:
+                self.metadata['episodename'] = episodename
 
         elif media_type == Torrent.EPISODE:
             series = raw_input("Series: ")
@@ -59,6 +82,15 @@ class MediaBuilder:
                              'season': season,
                              'episode': episode
                             }
+
+            t = tvdb_api.Tvdb()
+            e = t[self.metadata['series']][self.metadata['season']][self.metadata['episode']]
+            episodename = raw_input("Episode Name [%s]: " % e['episodename'])
+
+            if episodename == '':
+                self.metadata['episodename'] = e['episodename']
+            else:
+                self.metadata['episodename'] = episodename
 
         elif self.media_type == Torrent.SEASON:
             series = raw_input("Series: ")
@@ -164,11 +196,19 @@ class MediaBuilder:
             )
 
         if self.media_type == Torrent.EPISODE:
-            self.filename = "%s.S%sE%s_-_" % (
-                self.metadata['series'].replace(" ", "_"),
-                self.metadata['season'],
-                self.metadata['episode']
-            )
+            if self.metadata['episodename']:
+                self.filename = "%s.S%02dE%02d_-_%s" % (
+                    self.metadata['series'].replace(" ", "_"),
+                    self.metadata['season'],
+                    self.metadata['episode'],
+                    self.metadata['episodename']
+                )
+            else:
+                self.filename = "%s.S%02dE%02d" % (
+                    self.metadata['series'].replace(" ", "_"),
+                    self.metadata['season'],
+                    self.metadata['episode']
+                )
 
     def build_media(self, media_type=None):
 
