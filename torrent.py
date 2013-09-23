@@ -1,6 +1,5 @@
 import os
 from readjson import read_json
-import warnings
 import re
 import tvdb_api
 
