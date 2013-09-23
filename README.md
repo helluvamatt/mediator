@@ -35,7 +35,7 @@ Why? Because the best front-end media players can parse these with impeccable ac
 
 A season pack of a TV series needs to be handled. One method is to treat a season as a collection of episodes, iterating through each one with some assumptions in metadata application.
 
-### Library restoration and conversion
+### Library restoration and migration
 
 Most people already have a media library they are working with in some capacity. There needs to be an enrollment process for existing libraries.
-Library verification and restoration are up for consideration once the primary functions of mediator are in a satisfactory state. This means being able to reconstruct a media library in case of data failure/errors/other unforseen hiccups.
+Library verification and restoration are up for consideration once the primary functions of mediator are in a satisfactory state. This means being able to reconstruct a media library in case of data failure/errors/other unforseen hiccups. Additionally, at some point, a given torrent will no longer need/want to be seeded. There should be a mechanism to stop seeding and replace the hard link with the actual source media.
