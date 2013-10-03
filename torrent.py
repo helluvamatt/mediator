@@ -61,7 +61,6 @@ class MediaBuilder:
             if not episode == '':
                 self.metadata['episode'] = episode
 
-            print("time to query tvdb...")
             t = tvdb_api.Tvdb()
             e = t[self.metadata['series']][self.metadata['season']][self.metadata['episode']]
             episodename = raw_input("Episode Name [%s]: " % e['episodename'])
@@ -92,12 +91,32 @@ class MediaBuilder:
                 self.metadata['episodename'] = episodename
 
         elif self.media_type == Torrent.SEASON:
+            series = raw_input("Series [%s]: " % self.metadata['series'])
+            season = raw_input("Season [%s]: " % self.metadata['season'])
+
+            if not series == '':
+                self.metadata['series'] = series
+            if not season == '':
+                self.metadata['season'] = season
+
+        elif media_type == Torrent.SEASON:
             series = raw_input("Series: ")
             season = raw_input("Season: ")
+
             self.metadata = {
                              'series': series,
                              'season': season
                             }
+
+            t = tvdb_api.Tvdb()
+            e = t[self.metadata['series']][self.metadata['season']][self.metadata['episode']]
+
+            episodename = raw_input("Episode Name [%s]: " % e['episodename'])
+
+            if episodename == '':
+                self.metadata['episodename'] = e['episodename']
+            else:
+                self.metadata['episodename'] = episodename
 
     def get_suggested_metadata(self):
 
@@ -123,8 +142,9 @@ class MediaBuilder:
                     self.media_type = Torrent.EPISODE
 
                 elif 'seasonnumber' in namedgroups:
+                    print("matching season...")
                     self.metadata = {
-                                     'series': match.group('seriesname'),
+                                     'series': match.group('seriesname').replace(".", " "),
                                      'season': int(match.group('seasonnumber'))
                                     }
                     self.media_type = Torrent.SEASON
@@ -143,13 +163,33 @@ class MediaBuilder:
 
     def verify_source_data(self):
 
-        for current_file in os.listdir("%s/%s" % (self.settings["torrent-library"], self.name)):
-            if any(current_file.endswith(x) for x in self.settings["extensions"]):
-                source = raw_input("%s? [Y/n]" % current_file)
-                if source == 'y' or source == '':
-                    self.source_file = current_file
+        if self.media_type == Torrent.MOVIE or self.media_type == Torrent.EPISODE:
+            for dirname, dirnames, filenames in sorted(os.walk("%s/%s" % (self.settings["torrent-library"], self.name))):
+                for current_file in filenames:
+                    if any(current_file.endswith(x) for x in self.settings["extensions"]):
+                        source = raw_input("%s? [Y/n]" % current_file)
+                        if source == 'y' or source == '':
+                            self.source_file = current_file
+                            break
 
-        self.extension = os.path.splitext(self.source_file)[1]
+                self.extension = os.path.splitext(self.source_file)[1]
+        
+        elif self.media_type == Torrent.SEASON:
+            self.source_files = [] 
+            for dirname, dirnames, filenames in sorted(os.walk("%s/%s" % (self.settings["torrent-library"], self.name))):
+                for current_file in filenames:
+                    if any(current_file.endswith(x) for x in self.settings["extensions"]):
+                        if not any(re.search(foo, current_file, re.IGNORECASE) for foo in self.settings["ignore_patterns"]):
+                            # source = raw_input("%s? [Y/n]" % current_file)
+                            # if source == 'y' or source == '':
+                            self.source_files.append(current_file)
+                                # print("\ncurrent array:") 
+                                # for i in self.source_files:
+                                #     print i
+
+            print("\ncurrent array:") 
+            for i in self.source_files:
+                print i
 
     def preexisting(self):
 
