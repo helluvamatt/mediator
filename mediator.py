@@ -17,21 +17,24 @@ def dynamic_options(media_type):
         opt_list.append("M")
         opt_list.append("e")
         opt_list.append("s")
+        opt_list.append("i")
     elif media_type == 2:
         opt_list.append("E")
         opt_list.append("m")
         opt_list.append("s")
+        opt_list.append("i")
     elif media_type == 3:
         opt_list.append("S")
         opt_list.append("m")
         opt_list.append("e")
+        opt_list.append("i")
     else:
+        opt_list.append("I")
         opt_list.append("m")
         opt_list.append("e")
         opt_list.append("s")
 
     opt_list.append("k")
-    opt_list.append("i")
 
     opt_string = "["
 
@@ -64,20 +67,19 @@ def main():
             if len(operate) <= 1:
                 if operate in string.letters and operate in ['m','e','s','k','i','']:
                     if operate == '':
-                        mb.build_media()
+                        tor = mb.build_media()
                     elif operate == 'm':
-                        mb.build_media(media_type=Torrent.MOVIE)
+                        tor = mb.build_media(media_type=Torrent.MOVIE)
                     elif operate == 'e':
-                        mb.build_media(media_type=Torrent.EPISODE)
+                        tor = mb.build_media(media_type=Torrent.EPISODE)
                     elif operate == 's':
-                        mb.build_media(media_type=Torrent.SEASON)    
+                        tor = mb.build_media(media_type=Torrent.SEASON)    
                     break
                 print("Invalid option. Enter either a single letter or return.")
             else:
                 print("Invalid option. Enter either a single letter or return.")
         
-        #     tor = mb.build_media()
-        #     pickle.dump(tor, pickledb)
+            pickle.dump(tor, pickledb)
 
 if __name__ == '__main__':
     main()
