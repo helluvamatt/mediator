@@ -10,5 +10,6 @@
                     "^(?P<seriesname>.*).[Ss](?P<seasonnumber>\\d{2})[Ee](?P<episodenumber>\\d{2})(.*)",
                     "^(?P<seriesname>.*).[Ss](?P<seasonnumber>\\d{2})(?![Ee]\\d{2})(.*)",
                     "^(?P<title>.*).(?P<year>\\d{4})(?![\\w])"
-                    ]
+                    ],
+    "ignore_patterns": ["sample", "subs"]
 }
