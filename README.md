@@ -5,7 +5,7 @@ mediator
 
 mediator is a torrent-based management package specific to media libraries. It is currently a work in-progress. mediator is intended to be used in conjunction with Transmission or other clients that support script-calling on download completion. The goal is to create a logical taxonomy for personal movie/TV/media libraries, capable of being parsed by frontend media streamers (such as Boxee or XBMC), all without sacrificing seeding requirements.
 
-Current plans are to keep management a manual, hands-on approach to ensure that media nomenclature is 100% accurate. Naming and linking automation might be possible, but will only be included at later stages via suggested data.
+~~Current plans are to keep management a manual, hands-on approach to ensure that media nomenclature is 100% accurate. Naming and linking automation might be possible, but will only be included at later stages via suggested data.~~ Initial assumptions have been improved upon. It's nowhere near perfect, but using TVDB in conjunction with pattern matching, this is possible.
 
 *mediator is being developed with a headless Linux server in mind and is written in mostly Python.*
 
@@ -30,6 +30,10 @@ For clarification, the only metadata that mediator should care about is (and sho
 <sup>*S = Season, E = Episode</sup>
 
 Why? Because the best front-end media players can parse these with impeccable accuracy. They are also *very* human-readable. We don't care about the junk embedded in torrent names, like `Breaking.bad_SceneHD.720p.BluRayxHDDVD.x264-DEMAND.mkv`, because *mediator only uses hard links from your bittorrent client's download directory to your media library!* Not only does this method save tremendous storage space, but also keeps your torrents seeding — a primary goal of this project.
+
+### Daemonize
+
+Run on schedule in background, transmit reports, add non-interactive interface?
 
 ### Series season handling
 
