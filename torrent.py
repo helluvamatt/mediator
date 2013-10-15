@@ -180,16 +180,13 @@ class MediaBuilder:
                 for current_file in filenames:
                     if any(current_file.endswith(x) for x in self.settings["extensions"]):
                         if not any(re.search(foo, current_file, re.IGNORECASE) for foo in self.settings["ignore_patterns"]):
-                            # source = raw_input("%s? [Y/n]" % current_file)
-                            # if source == 'y' or source == '':
-                            self.source_files.append(current_file)
-                                # print("\ncurrent array:") 
-                                # for i in self.source_files:
-                                #     print i
+                            source = raw_input("%s? [Y/n]" % current_file)
+                            if source == 'y' or source == '':
+                                self.source_files.append(current_file)
 
-            print("\ncurrent array:") 
-            for i in self.source_files:
-                print i
+            # print("\ncurrent array:") 
+            # for i in self.source_files:
+            #     print i
 
     def preexisting(self):
 
@@ -248,6 +245,21 @@ class MediaBuilder:
                     self.metadata['season'],
                     self.metadata['episode']
                 )
+
+        if self.media_type == Torrent.SEASON:
+            self.filename = []
+            for (i, f) in enumerate(self.source_files):
+
+                t = tvdb_api.Tvdb()
+                e = t[self.metadata['series']][self.metadata['season']][i+1]
+
+                self.filename.append("%s.S%02dE%02d_-_%s" % (
+                    self.metadata['series'].replace(" ", "_"),
+                    self.metadata['season'],
+                    i + 1,
+                    e['episodename']
+                ))
+                print("%s: %s" % (self.filename[i], f))
 
     def build_media(self, media_type=None):
 
