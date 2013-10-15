@@ -142,7 +142,6 @@ class MediaBuilder:
                     self.media_type = Torrent.EPISODE
 
                 elif 'seasonnumber' in namedgroups:
-                    print("matching season...")
                     self.metadata = {
                                      'series': match.group('seriesname').replace(".", " "),
                                      'season': int(match.group('seasonnumber'))
@@ -175,18 +174,18 @@ class MediaBuilder:
                 self.extension = os.path.splitext(self.source_file)[1]
         
         elif self.media_type == Torrent.SEASON:
-            self.source_files = [] 
+            self.source_files = []
+            self.extension = []
+            self.pathto = []
             for dirname, dirnames, filenames in sorted(os.walk("%s/%s" % (self.settings["torrent-library"], self.name))):
                 for current_file in filenames:
                     if any(current_file.endswith(x) for x in self.settings["extensions"]):
                         if not any(re.search(foo, current_file, re.IGNORECASE) for foo in self.settings["ignore_patterns"]):
                             source = raw_input("%s? [Y/n]" % current_file)
                             if source == 'y' or source == '':
+                                self.pathto.append(dirname)
                                 self.source_files.append(current_file)
-
-            # print("\ncurrent array:") 
-            # for i in self.source_files:
-            #     print i
+                                self.extension.append(os.path.splitext(current_file)[1])
 
     def preexisting(self):
 
@@ -219,9 +218,9 @@ class MediaBuilder:
                 print("episode is new")
                 return False
 
-
         elif self.media_type == Torrent.SEASON:
-            print("seasons not supported yet! perhaps you should get on that?")
+            print("INFO: season checking not supported yet!")
+            return False
 
     def format_filename(self):
 
@@ -237,7 +236,7 @@ class MediaBuilder:
                     self.metadata['series'].replace(" ", "_"),
                     self.metadata['season'],
                     self.metadata['episode'],
-                    self.metadata['episodename']
+                    self.metadata['episodename'].replace(" ", "_")
                 )
             else:
                 self.filename = "%s.S%02dE%02d" % (
@@ -257,9 +256,8 @@ class MediaBuilder:
                     self.metadata['series'].replace(" ", "_"),
                     self.metadata['season'],
                     i + 1,
-                    e['episodename']
+                    e['episodename'].replace(" ", "_")
                 ))
-                print("%s: %s" % (self.filename[i], f))
 
     def build_media(self, media_type=None):
 
@@ -286,6 +284,21 @@ class MediaBuilder:
                         self.metadata['season'],
                         self.filename,
                         self.extension))
+
+            elif self.media_type == Torrent.SEASON:
+                os.makedirs("%s/%s/Season %s" % (
+                    self.settings['tv-dir'],
+                    self.metadata['series'],
+                    self.metadata['season']))
+                for (i, f) in enumerate(self.source_files):
+                    os.link("%s/%s" % (self.pathto[i], f),
+                        "%s/%s/Season %s/%s%s" % (
+                        self.settings['tv-dir'],
+                        self.metadata['series'],
+                        self.metadata['season'],
+                        self.filename[i],
+                        self.extension[i]))
+                self.source_file = "null"
 
             return Torrent(self.name, self.media_type, self.source_file, self.filename, self.extension, **self.metadata)
         else:
