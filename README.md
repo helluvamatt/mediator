@@ -37,7 +37,7 @@ Run on schedule in background, transmit reports, add non-interactive interface?
 
 ### Series season handling
 
-A season pack of a TV series needs to be handled. One method is to treat a season as a collection of episodes, iterating through each one with some assumptions in metadata application.
+~~A season pack of a TV series needs to be handled. One method is to treat a season as a collection of episodes, iterating through each one with some assumptions in metadata application.~~ Season packs are now handled by iteration on a directory. It's dirty; maybe a future enhancement would be to make a SeasonPack subclass of MediaBuilder?
 
 ### Library restoration and migration
 
