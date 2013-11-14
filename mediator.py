@@ -65,21 +65,26 @@ def main():
                                                     dynamic_options(mb.get_suggested_metadata())
                                                    )).lower()
             if len(operate) <= 1:
-                if operate in string.letters and operate in ['m','e','s','k','i','']:
-                    if operate == '':
-                        tor = mb.build_media()
-                    elif operate == 'm':
-                        tor = mb.build_media(media_type=Torrent.MOVIE)
-                    elif operate == 'e':
-                        tor = mb.build_media(media_type=Torrent.EPISODE)
-                    elif operate == 's':
-                        tor = mb.build_media(media_type=Torrent.SEASON)    
+                if operate == '':
+                    tor = mb.build_media()
+                elif operate == 'm':
+                    tor = mb.build_media(media_type=Torrent.MOVIE)
+                elif operate == 'e':
+                    tor = mb.build_media(media_type=Torrent.EPISODE)
+                elif operate == 's':
+                    tor = mb.build_media(media_type=Torrent.SEASON)  
+                elif operate == 'k':
                     break
-                print("Invalid option. Enter either a single letter or return.")
+                elif operate == 'i':
+                    break
+                else:
+                    print("Invalid option. Enter either a single letter or return.")
             else:
                 print("Invalid option. Enter either a single letter or return.")
-        
-            pickle.dump(tor, pickledb)
+
+            if 'tor' in locals():
+                pickle.dump(tor, pickledb)
+                break
 
 if __name__ == '__main__':
     main()
