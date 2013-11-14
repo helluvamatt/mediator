@@ -25,7 +25,7 @@ For as many media managers that are out there, there seem to be just as many dif
 For clarification, the only metadata that mediator should care about is (and should be of the following forms):
 
 * Movies: Title_(Year).extension
-* TV Episodes: Name_of_Series.S01E05_-_Name_of_episode*.extension
+* TV Episodes: Name_of_Series.S01E05_-_Name_of_episode.extension
 
 <sup>*S = Season, E = Episode</sup>
 
