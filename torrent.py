@@ -48,6 +48,7 @@ class MediaBuilder:
                              'title': title,
                              'year': year
                             }
+            self.media_type = Torrent.MOVIE
 
         elif self.media_type == Torrent.EPISODE:
             series = raw_input("Series [%s]: " % self.metadata['series'])
