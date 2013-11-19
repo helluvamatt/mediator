@@ -46,18 +46,18 @@ Currently, `migrate.py` takes a client's torrent library items and merges them i
 Functionality
 =============
 
-## mediator.py
+### mediator.py
 
 Control flow script iterates through queue of torrents to-be-processed and stores returned Torrent instance in database.
 
-##  migrate.py
+###  migrate.py
 
 Merges client torrent library with mediator's with duplication checking.
 
-## queue.py
+### queue.py
 
 mediator currently manages torrents through three logs: todo, history, and delta. todo is for torrents that have yet to run through mediator. history is self-explanatory. delta is for torrents that have run through mediator, but have either: failed to link, been skipped, or error-ed out.
 
-## torrent.py
+### torrent.py
 
 Class definition and functions for MediaBuilder. MediaBuilder handles the heavy-lifting for building each torrent: grabs metadata from TVDB and confirms it from stdin, selects the proper source files which will be hard linked, formats the hard link's filename using the collected metadata, and finally links the media to the proper destination. build_media() returns a Torrent class instance which should be handled by the calling instance of MediaBuilder.
