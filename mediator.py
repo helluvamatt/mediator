@@ -53,38 +53,42 @@ def main():
     tq = TorrentQueues(settings_file)
     pickledb = open("history.pkl", "wb")
 
-    # now, iterate on each torrent in queue
-    for i, torrent in enumerate(tq.get_queue(todo=True)):
-        torrent = torrent.strip()
-        mb = MediaBuilder(torrent, settings_file)
+    try:
+        # now, iterate on each torrent in queue
+        for i, torrent in enumerate(tq.get_queue(todo=True)):
+            torrent = torrent.strip()
+            mb = MediaBuilder(torrent, settings_file)
 
-        while True:
-            operate = raw_input("[%s/%s] %s %s:" % (i + 1,
-                                                    tq.todo_size + 1,
-                                                    torrent,
-                                                    dynamic_options(mb.get_suggested_metadata())
-                                                   )).lower()
-            if len(operate) <= 1:
-                if operate == '':
-                    tor = mb.build_media()
-                elif operate == 'm':
-                    tor = mb.build_media(media_type=Torrent.MOVIE)
-                elif operate == 'e':
-                    tor = mb.build_media(media_type=Torrent.EPISODE)
-                elif operate == 's':
-                    tor = mb.build_media(media_type=Torrent.SEASON)  
-                elif operate == 'k':
-                    break
-                elif operate == 'i':
-                    break
+            while True:
+                operate = raw_input("[%s/%s] %s %s:" % (i + 1,
+                                                        tq.todo_size + 1,
+                                                        torrent,
+                                                        dynamic_options(mb.get_suggested_metadata())
+                                                       )).lower()
+                if len(operate) <= 1:
+                    if operate == '':
+                        tor = mb.build_media()
+                    elif operate == 'm':
+                        tor = mb.build_media(media_type=Torrent.MOVIE)
+                    elif operate == 'e':
+                        tor = mb.build_media(media_type=Torrent.EPISODE)
+                    elif operate == 's':
+                        tor = mb.build_media(media_type=Torrent.SEASON)  
+                    elif operate == 'k':
+                        break
+                    elif operate == 'i':
+                        break
+                    else:
+                        print("Invalid option. Enter either a single letter or return.")
                 else:
                     print("Invalid option. Enter either a single letter or return.")
-            else:
-                print("Invalid option. Enter either a single letter or return.")
 
-            if 'tor' in locals():
-                pickle.dump(tor, pickledb)
-                break
+                if 'tor' in locals():
+                    pickle.dump(tor, pickledb)
+                    break
+                    
+    except (KeyboardInterrupt, SystemExit):
+        print("\n")
 
 if __name__ == '__main__':
     main()
