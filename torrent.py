@@ -163,19 +163,26 @@ class MediaBuilder:
 
     def verify_source_data(self):
 
-        if self.media_type == Torrent.MOVIE or self.media_type == Torrent.EPISODE:
-            for dirname, dirnames, filenames in sorted(os.walk("%s/%s" % (self.settings["torrent-library"], self.name))):
-                for current_file in filenames:
-                    if any(current_file.endswith(x) for x in self.settings["extensions"]):
-                        source = raw_input("%s? [Y/n]" % current_file)
-                        if source == 'y' or source == '':
-                            self.source_file = current_file
-                            break
+        self.source_files = []
+        self.source_file = None
 
+        if self.media_type == Torrent.MOVIE or self.media_type == Torrent.EPISODE:
+            if self.name.endswith(tuple(self.settings["extensions"])) and os.path.exists("%s/%s" %
+                (self.settings["torrent-library"], self.name)):
+                self.source_file = self.name
                 self.extension = os.path.splitext(self.source_file)[1]
+            else:
+                for dirname, dirnames, filenames in sorted(os.walk("%s/%s" % (self.settings["torrent-library"], self.name))):
+                    for current_file in filenames:
+                        if any(current_file.endswith(x) for x in self.settings["extensions"]):
+                            source = raw_input("%s? [Y/n]" % current_file)
+                            if source == 'y' or source == '':
+                                self.source_file = current_file
+                                break
+
+                    self.extension = os.path.splitext(self.source_file)[1]
         
         elif self.media_type == Torrent.SEASON:
-            self.source_files = []
             self.extension = []
             self.pathto = []
             for dirname, dirnames, filenames in sorted(os.walk("%s/%s" % (self.settings["torrent-library"], self.name))):
@@ -188,6 +195,11 @@ class MediaBuilder:
                                 self.source_files.append(current_file)
                                 self.extension.append(os.path.splitext(current_file)[1])
 
+        if self.source_file != None or self.source_files != []:
+            return True
+        else:
+            return False
+
     def preexisting(self):
 
         if self.media_type == Torrent.MOVIE:
@@ -199,10 +211,12 @@ class MediaBuilder:
                 self.settings['movie-dir'],
                 self.filename)
             ):
-                print("movie already exists")
-                return True
+                overwrite = raw_input("Movie already exists. Overwrite? [Y/n]")
+                if overwrite == 'y' or overwrite == '':
+                    return False
+                else:
+                    return True
             else:
-                print("movie is new") 
                 return False
 
         elif self.media_type == Torrent.EPISODE:
@@ -213,15 +227,27 @@ class MediaBuilder:
                 self.filename,
                 self.extension)
             ):
-                print("episode already exists")
-                return True
+                overwrite = raw_input("Episode already exists. Overwrite? [Y/n]")
+                if overwrite == 'y' or overwrite == '':
+                    return False
+                else:
+                    return True
             else:
-                print("episode is new")
                 return False
 
         elif self.media_type == Torrent.SEASON:
-            print("INFO: season checking not supported yet!")
-            return False
+            if os.path.exists("%s/%s/Season %s" % (
+                self.settings['tv-dir'],
+                self.metadata['series'],
+                self.metadata['season'])
+            ):
+                overwrite = raw_input("Season already exists. Overwrite? [Y/n]")
+                if overwrite == 'y' or overwrite == '':
+                    return False
+                else:
+                    return True
+            else:
+                return False
 
     def format_filename(self):
 
@@ -263,42 +289,97 @@ class MediaBuilder:
     def build_media(self, media_type=None):
 
         self.collect_metadata(media_type)
-        self.verify_source_data()
+
+        if not self.verify_source_data():
+            print("Source data not found. Check library.")
+            return False
+
         self.format_filename()
 
         if not self.preexisting():
 
             if self.media_type == Torrent.MOVIE:
-                os.makedirs("%s/%s" % (self.settings['movie-dir'], self.filename))
-                os.link("%s/%s/%s" % (self.settings['torrent-library'], self.name, self.source_file),
-                        "%s/%s/%s%s" % (self.settings['movie-dir'], self.filename, self.filename, self.extension)) 
-                   
+                try:
+                    os.makedirs("%s/%s" % (self.settings['movie-dir'], self.filename))
+                except Exception as e:
+                    if e.errno != 17:
+                        print("Unexpected: %s\n" % e)
+
+                if self.name != self.source_file:
+                    try:
+                        os.link("%s/%s/%s" % (self.settings['torrent-library'], self.name, self.source_file),
+                                "%s/%s/%s%s" % (self.settings['movie-dir'], self.filename, self.filename, self.extension)) 
+                    except Exception as e:
+                        if e.errno != 17:
+                            print("Unexpected: %s\n" % e)
+
+                else:
+                    try:
+                       os.link("%s/%s" % (self.settings['torrent-library'], self.source_file),
+                                "%s/%s/%s%s" % (self.settings['movie-dir'], self.filename, self.filename, self.extension)) 
+                    except Exception as e:
+                        if e.errno != 17:
+                            print("Unexpected: %s\n" % e)
+
             elif self.media_type == Torrent.EPISODE:
-                os.makedirs("%s/%s/Season %s" % (
-                    self.settings['tv-dir'],
-                    self.metadata['series'],
-                    self.metadata['season']))
-                os.link("%s/%s/%s" % (self.settings['torrent-library'], self.name, self.source_file),
-                        "%s/%s/Season %s/%s%s" % (
+                try:
+                    os.makedirs("%s/%s/Season %s" % (
                         self.settings['tv-dir'],
                         self.metadata['series'],
-                        self.metadata['season'],
-                        self.filename,
-                        self.extension))
+                        self.metadata['season']))
+                except OSError as e:
+                    if e.errno != 17:
+                        print("Unexpected: %s\n" % e)
+
+                if self.name != self.source_file:
+                    try:
+                        os.link("%s/%s/%s" % (self.settings['torrent-library'], self.name, self.source_file),
+                                "%s/%s/Season %s/%s%s" % (
+                                self.settings['tv-dir'],
+                                self.metadata['series'],
+                                self.metadata['season'],
+                                self.filename,
+                                self.extension))
+                    except Exception as e:
+                        if e.errno != 17:
+                            print("Unexpected: %s\n" % e)
+
+                else:
+                    try:
+                        os.link("%s/%s" % (self.settings['torrent-library'], self.source_file),
+                                "%s/%s/Season %s/%s%s" % (
+                                self.settings['tv-dir'],
+                                self.metadata['series'],
+                                self.metadata['season'],
+                                self.filename,
+                                self.extension))
+                    except Exception as e:
+                        if e.errno != 17:
+                            print("Unexpected: %s\n" % e) 
 
             elif self.media_type == Torrent.SEASON:
-                os.makedirs("%s/%s/Season %s" % (
-                    self.settings['tv-dir'],
-                    self.metadata['series'],
-                    self.metadata['season']))
-                for (i, f) in enumerate(self.source_files):
-                    os.link("%s/%s" % (self.pathto[i], f),
-                        "%s/%s/Season %s/%s%s" % (
+                try:
+                    os.makedirs("%s/%s/Season %s" % (
                         self.settings['tv-dir'],
                         self.metadata['series'],
-                        self.metadata['season'],
-                        self.filename[i],
-                        self.extension[i]))
+                        self.metadata['season']))
+                except OSError as e:
+                    if e.errno != 17:
+                        print("Unexpected: %s\n" % e)
+
+                for (i, f) in enumerate(self.source_files):
+                    try:
+                        os.link("%s/%s" % (self.pathto[i], f),
+                            "%s/%s/Season %s/%s%s" % (
+                            self.settings['tv-dir'],
+                            self.metadata['series'],
+                            self.metadata['season'],
+                            self.filename[i],
+                            self.extension[i]))
+                    except Exception as e:
+                        if e.errno != 17:
+                            print("Unexpected: %s\n" % e)
+
                 self.source_file = "null"
 
             return Torrent(self.name, self.media_type, self.source_file, self.filename, self.extension, **self.metadata)
