@@ -14,7 +14,7 @@ Status
 
 ### Metadata scraper
 
-Running regex over each torrent name returns its "best guess" as to which media type it's dealing with; the type it detects is set to the default operation (e.g. [M/e/s/k/i] if a movie, [E/m/s/k/i] if an episode, ...). There are additional checks that can be made to improve accurate detection: file size, file type, extension, etc.
+Running regex over each torrent name returns its "best guess" as to which media type it's dealing with; the type it detects is set to the default operation (e.g. [M/e/s/p/k/i] if a movie, [E/m/s/p/k/i] if an episode, ...). There are additional checks that can be made to improve accurate detection: file size, file type, extension, etc.
 
 For clarification, the only metadata that mediator should care about is (and should be of the following forms):
 
