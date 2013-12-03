@@ -17,22 +17,32 @@ def dynamic_options(media_type):
         opt_list.append("M")
         opt_list.append("e")
         opt_list.append("s")
+        opt_list.append("p")
         opt_list.append("i")
     elif media_type == 2:
         opt_list.append("E")
         opt_list.append("m")
         opt_list.append("s")
+        opt_list.append("p")
         opt_list.append("i")
     elif media_type == 3:
         opt_list.append("S")
         opt_list.append("m")
         opt_list.append("e")
+        opt_list.append("p")
+        opt_list.append("i")
+    elif media_type == 4:
+        opt_list.append("P")
+        opt_list.append("m")
+        opt_list.append("e")
+        opt_list.append("s")
         opt_list.append("i")
     else:
         opt_list.append("I")
         opt_list.append("m")
         opt_list.append("e")
         opt_list.append("s")
+        opt_list.append("p")
 
     opt_list.append("k")
 
@@ -74,6 +84,8 @@ def main():
                         tor = mb.build_media(media_type=Torrent.EPISODE)
                     elif operate == 's':
                         tor = mb.build_media(media_type=Torrent.SEASON)  
+                    elif operate == 'p':
+                        tor = mb.build_media(media_type=Torrent.PACK)
                     elif operate == 'k':
                         break
                     elif operate == 'i':
@@ -92,3 +104,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
