@@ -13,9 +13,10 @@ class Torrent:
     PACK = 4
     _type = -1
 
-    def __init__(self, name, media_type, library_path, filename, extension, **metadata):
+    def __init__(self, name, parent=None, media_type, library_path, filename, extension, **metadata):
 
         self.name = name
+        self.parent = parent
         self.media_type = media_type
         self.library_path = library_path
         self.filename = filename
