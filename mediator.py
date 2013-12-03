@@ -57,7 +57,7 @@ def dynamic_options(media_type):
 
     return opt_string
 
-def main():
+def mediator():
 
     # first, update the queues and store values
     tq = TorrentQueues(settings_file)
@@ -102,6 +102,9 @@ def main():
     except (KeyboardInterrupt, SystemExit):
         print("\n")
 
+def main():
+
+    mediator()
+
 if __name__ == '__main__':
     main()
-
