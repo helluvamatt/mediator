@@ -2,7 +2,6 @@ import os
 from readjson import read_json
 import re
 import tvdb_api
-import inspect
 
 settings_file = "settings.json"
 
