@@ -2,12 +2,16 @@ import os
 from readjson import read_json
 import re
 import tvdb_api
+import inspect
+
+settings_file = "settings.json"
 
 class Torrent:
 
     MOVIE = 1
     EPISODE = 2
     SEASON = 3
+    PACK = 4
     _type = -1
 
     def __init__(self, name, media_type, library_path, filename, extension, **metadata):
@@ -21,11 +25,12 @@ class Torrent:
 
 class MediaBuilder:
 
-    def __init__(self, name, settings_file):
+    def __init__(self, name, settings_file, parent=None):
 
         self.name = name
         self.media_type = ""
         self.settings = read_json(settings_file)
+        self.parent = parent
 
         self.get_suggested_metadata()
 
@@ -49,6 +54,15 @@ class MediaBuilder:
                              'year': year
                             }
             self.media_type = Torrent.MOVIE
+
+        elif self.media_type == Torrent.PACK:
+            pass
+            
+        elif media_type == Torrent.PACK:
+            for dirname, dirnames, filenames in os.walk("%s/%s" % (self.settings["torrent-library"], self.name)):
+                for subdirname in dirnames:
+                    sub_movie = MediaBuilder(subdirname, settings_file, self.name)
+                    sub_tor = sub_movie.build_media(media_type=Torrent.MOVIE)
 
         elif self.media_type == Torrent.EPISODE:
             series = raw_input("Series [%s]: " % self.metadata['series'])
@@ -166,14 +180,17 @@ class MediaBuilder:
         self.source_files = []
         self.source_file = None
 
+        if self.parent != None:
+            self.name = "/".join((self.parent, self.name))
+
         if self.media_type == Torrent.MOVIE or self.media_type == Torrent.EPISODE:
             if self.name.endswith(tuple(self.settings["extensions"])) and os.path.exists("%s/%s" %
                 (self.settings["torrent-library"], self.name)):
                 self.source_file = self.name
                 self.extension = os.path.splitext(self.source_file)[1]
             else:
-                for dirname, dirnames, filenames in sorted(os.walk("%s/%s" % (self.settings["torrent-library"], self.name))):
-                    for current_file in filenames:
+                for dirname, dirnames, filenames in os.walk("%s/%s" % (self.settings["torrent-library"], self.name)):
+                    for current_file in sorted(filenames):
                         if any(current_file.endswith(x) for x in self.settings["extensions"]):
                             source = raw_input("%s? [Y/n]" % current_file)
                             if source == 'y' or source == '':
@@ -288,6 +305,9 @@ class MediaBuilder:
 
     def build_media(self, media_type=None):
 
+        if self.parent != None:
+            print("Sub-pack: %s" % self.name)
+
         self.collect_metadata(media_type)
 
         if not self.verify_source_data():
@@ -385,3 +405,4 @@ class MediaBuilder:
             return Torrent(self.name, self.media_type, self.source_file, self.filename, self.extension, **self.metadata)
         else:
             return False
+
